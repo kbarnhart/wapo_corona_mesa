@@ -22,10 +22,19 @@ def transmission_portrayal(agent):
     else:  # uninfected.
         portrayal["Color"] = "green"
 
-    portrayal["Shape"] = "circle"
-    portrayal["Filled"] = "true"
+
+
+    if agent.moving:
+        portrayal["Filled"] = "true"
+        portrayal["Shape"] = "circle"
+        portrayal["r"] = 4
+    else:
+        portrayal["Filled"] = "false"
+        portrayal["Shape"] = "rect"
+        portrayal["w"] = 0.015
+        portrayal["h"] = 0.015
     portrayal["Layer"] = 0
-    portrayal["r"] = 5
+
 
     return portrayal
 

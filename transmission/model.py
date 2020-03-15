@@ -58,8 +58,11 @@ class Transmission(Model):
 Potential things to add
 # age as an attribute.
 # differential mobility as a function of age.
-# time dependence of recovery
+# differential recovery as a function of age.
+# time dependence of recovery (e.g., sick for longer = higher probability of death?)
 # non random walking
+# add another state that is self quarantied (based on time to symptoms), so movers and nonmovers can become
+# self quarantied after symptoms arise. Then they don't transmit.
 
                      """
         self.population = population
