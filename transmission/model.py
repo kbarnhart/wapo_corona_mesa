@@ -7,7 +7,7 @@ from mesa import Model
 from mesa.space import ContinuousSpace
 from mesa.time import RandomActivation
 from mesa.datacollection import DataCollector
-from .individual import Individual, _SICK, _RECOVERED, _UNINFECTED, _DEAD
+from .individual import Individual, _SICK, _RECOVERED, _UNINFECTED, _DEAD, _QUARANTINED
 
 
 def analyze_dead(model):
@@ -33,6 +33,11 @@ def analyze_recovered(model):
     recovered = np.mean(agent_status)
     return recovered
 
+def analyze_quarantined(model):
+    agent_status = [agent.quarantined for agent in model.schedule.agents]
+    quarantined = np.mean(agent_status)
+    return quarantined
+
 
 class Transmission(Model):
     """
@@ -40,15 +45,18 @@ class Transmission(Model):
 
     def __init__(
         self,
+        seed=None,
         population=100,
         width=500,
         height=500,
         initial_proportion_sick=0.1,
         proportion_moving=0.5,
         speed=1.0,
+        time_until_symptomatic=3,
         transmission_probability=0.2,
         transmission_distance=1.0,
         recovery_probability=0.6,
+        death_probability=0.02,
     ):
         """
         Create a new Transmission model.
@@ -65,6 +73,7 @@ Potential things to add
 # self quarantied after symptoms arise. Then they don't transmit.
 
                      """
+        super(Transmission, self).__init__(seed=seed)
         self.population = population
         self.proportion_moving = proportion_moving
         self.initial_proportion_sick = initial_proportion_sick
@@ -75,7 +84,9 @@ Potential things to add
         self.factors = dict(
             transmission_probability=transmission_probability,
             recovery_probability=recovery_probability,
+            death_probability=death_probability,
             transmission_distance=transmission_distance,
+            time_until_symptomatic=time_until_symptomatic,
         )
 
         self.make_agents()
@@ -87,12 +98,14 @@ Potential things to add
                 "sick": analyze_sick,
                 "recovered": analyze_recovered,
                 "dead": analyze_dead,
+                "quarantined": analyze_quarantined,
             }
         )
 
     def make_agents(self):
         """
         """
+
         for i in range(self.population):
             x = self.random.random() * self.space.x_max
             y = self.random.random() * self.space.y_max
@@ -121,3 +134,6 @@ Potential things to add
     def step(self):
         self.datacollector.collect(self)
         self.schedule.step()
+
+        if analyze_sick(self) == 0:
+            self.running=False

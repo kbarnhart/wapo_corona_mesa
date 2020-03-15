@@ -14,11 +14,13 @@ def transmission_portrayal(agent):
     portrayal = {}
 
     if agent.sick:
-        portrayal["Color"] = "brown"
+        portrayal["Color"] = "orange"
     elif agent.recovered:
         portrayal["Color"] = "purple"
     elif agent.dead:
         portrayal["Color"] = "grey"
+    elif agent.quarantined:
+        portrayal["Color"] = "blue"
     else:  # uninfected.
         portrayal["Color"] = "green"
 
@@ -43,16 +45,20 @@ canvas_element = SimpleCanvas(transmission_portrayal, 500, 500)
 chart_element = ChartModule(
     [
         {"Label": "uninfected", "Color": "green"},
-        {"Label": "sick", "Color": "brown"},
+        {"Label": "sick", "Color": "orange"},
         {"Label": "recovered", "Color": "purple"},
         {"Label": "dead", "Color": "gray"},
+        {"Label":"quarantined", "Color": "blue"}
     ],
     data_collector_name="datacollector",
 )
 
 model_params = {
     "population": UserSettableParameter(
-        "slider", "population", value=100, min_value=10, max_value=1000, step=10
+        "slider", "population", value=900, min_value=10, max_value=1000, step=10
+    ),
+    "time_until_symptomatic": UserSettableParameter(
+        "slider", "time_until_symptomatic", value=3, min_value=0, max_value=10, step=1
     ),
     "initial_proportion_sick": UserSettableParameter(
         "slider",
@@ -71,16 +77,19 @@ model_params = {
     "transmission_probability": UserSettableParameter(
         "slider",
         "transmission_probability",
-        value=0.2,
+        value=0.8,
         min_value=0,
         max_value=1,
         step=0.01,
     ),
     "transmission_distance": UserSettableParameter(
-        "slider", "transmission_distance", value=2, min_value=0, max_value=10, step=0.5
+        "slider", "transmission_distance", value=10, min_value=0, max_value=20, step=1
     ),
     "recovery_probability": UserSettableParameter(
-        "slider", "recovery_probability", value=0.9, min_value=0, max_value=1, step=0.01
+        "slider", "recovery_probability", value=0.3, min_value=0, max_value=1, step=0.01
+    ),
+    "death_probability": UserSettableParameter(
+        "slider", "death_probability", value=0.01, min_value=0, max_value=1, step=0.01
     ),
 }
 

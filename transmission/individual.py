@@ -4,8 +4,9 @@ from mesa import Agent
 
 _UNINFECTED = 0
 _SICK = 1
-_RECOVERED = 2
-_DEAD = 3
+_QUARANTINED = 2
+_RECOVERED = 3
+_DEAD = 4
 
 
 class Individual(Agent):
@@ -24,9 +25,11 @@ class Individual(Agent):
         status=0,
         recovered=False,
         dead=False,
+        time_until_symptomatic=3,
         transmission_probability=0.2,
         recovery_probability=0.6,
         transmission_distance=1.0,
+        death_probability=0.02
     ):
 
         """
@@ -53,7 +56,10 @@ class Individual(Agent):
         self.status = status
         self.transmission_probability = transmission_probability
         self.recovery_probability = recovery_probability
+        self.death_probability = death_probability
         self.transmission_distance = transmission_distance
+        self.time_sick = 0
+        self.time_until_symptomatic =time_until_symptomatic
 
     @property
     def sick(self):
@@ -71,38 +77,55 @@ class Individual(Agent):
     def uninfected(self):
         return self.status == _UNINFECTED
 
+    @property
+    def quarantined(self):
+        return self.status == _QUARANTINED
+
+
     def step(self):
         """
         """
 
-        # if you are not dead or recovered.
-        if (not self.recovered) and (not self.dead):
+        # if you are sick or uninfected, then see who your friends are.
+        if self.sick:
 
             # find and transmit with neighbors
-
             neighbors = self.model.space.get_neighbors(
                 self.pos, self.transmission_distance, False
             )
             for neighbor in neighbors:
-                # if you or neighbor is sick, infect.
-
-                if (self.sick) or (neighbor.sick):
+                # if you or neighbor is uninfected.
+                if neighbor.uninfected:
                     transmit = np.random.random_sample() < self.transmission_probability
                     if transmit:
-                        self.status = _SICK
                         neighbor.status = _SICK
 
-        # if you are sick, potentially recover or die.
-        if self.sick:
+        # if you are sick, potentially recover or die. If you do neither, then
+        # quarantine yourself after you become symptomatic.
+        if self.sick or self.quarantined:
+
             recover = np.random.random_sample() < self.recovery_probability
+            death = np.random.random_sample() < self.death_probability
+
+            if recover and death: # if both, none.
+                death = False
+                recover = False
+
             if recover:
                 self.status = _RECOVERED
-            else:
+
+
+            if death:
                 self.status = _DEAD
                 self.moving = False
 
-        # move if you are moving (move randomly)
-        if self.moving:
+            if (not self.recovered) and (self.time_sick>self.time_until_symptomatic):
+                self.status = _QUARANTINED
+
+            self.time_sick += 1
+
+        # move if you were assigned to move and are not quarantined (move randomly)
+        if self.moving and (not self.quarantined):
             velocity = np.random.random(2) * 2 - 1
             self.velocity /= np.linalg.norm(velocity)
             new_pos = self.pos + self.velocity * self.speed
