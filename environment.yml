@@ -1,0 +1,5 @@
+name: wapo_corona_mesa
+dependencies:
+- pip
+- pip:
+  - -r file:requirements.txt
