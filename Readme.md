@@ -21,4 +21,5 @@ $ mesa runserver
 
 ## NOTE:
 I made this as an exploratory exercise. I've never used mesa before today.
+The code was inspired by the WAPO simulation, was not meant to reproduce it perfectly. 
 If anyone wants to improve, please do. PRs welcome!
