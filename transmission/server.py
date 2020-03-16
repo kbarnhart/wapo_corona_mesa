@@ -88,6 +88,9 @@ model_params = {
     "recovery_probability": UserSettableParameter(
         "slider", "recovery_probability", value=0.3, min_value=0, max_value=1, step=0.01
     ),
+        "quarantine_probability": UserSettableParameter(
+            "slider", "quarantine_probability", value=0.5, min_value=0, max_value=1, step=0.01
+        ),
     "death_probability": UserSettableParameter(
         "slider", "death_probability", value=0.01, min_value=0, max_value=1, step=0.01
     ),

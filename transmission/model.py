@@ -57,6 +57,7 @@ class Transmission(Model):
         transmission_distance=1.0,
         recovery_probability=0.6,
         death_probability=0.02,
+        quarantine_probability = 0.5
     ):
         """
         Create a new Transmission model.
@@ -87,6 +88,7 @@ Potential things to add
             death_probability=death_probability,
             transmission_distance=transmission_distance,
             time_until_symptomatic=time_until_symptomatic,
+            quarantine_probability=quarantine_probability
         )
 
         self.make_agents()
@@ -135,5 +137,5 @@ Potential things to add
         self.datacollector.collect(self)
         self.schedule.step()
 
-        if analyze_sick(self) == 0:
+        if analyze_sick(self) == 0 and analyze_quarantined(self) == 0 :
             self.running=False

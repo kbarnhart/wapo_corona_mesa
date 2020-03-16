@@ -29,7 +29,8 @@ class Individual(Agent):
         transmission_probability=0.2,
         recovery_probability=0.6,
         transmission_distance=1.0,
-        death_probability=0.02
+        death_probability=0.02,
+        quarantine_probability = 0.5
     ):
 
         """
@@ -59,8 +60,8 @@ class Individual(Agent):
         self.death_probability = death_probability
         self.transmission_distance = transmission_distance
         self.time_sick = 0
-        self.time_until_symptomatic =time_until_symptomatic
-
+        self.time_until_symptomatic = time_until_symptomatic
+        self.quarantine_probability = quarantine_probability
     @property
     def sick(self):
         return self.status == _SICK
@@ -120,7 +121,9 @@ class Individual(Agent):
                 self.moving = False
 
             if (not self.recovered) and (self.time_sick>self.time_until_symptomatic):
-                self.status = _QUARANTINED
+                quarantined = np.random.random_sample() < self.quarantine_probability
+                if quarantined:
+                    self.status = _QUARANTINED
 
             self.time_sick += 1
 
